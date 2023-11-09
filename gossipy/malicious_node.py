@@ -1,5 +1,6 @@
 from typing import Optional, Union, Tuple
 from torch import Tensor
+from torch.nn import Parameter
 from numpy import ndarray
 
 from .core import AntiEntropyProtocol, MessageType, Message, P2PNetwork
@@ -44,11 +45,14 @@ class MaliciousNode(GossipNode):
              protocol: AntiEntropyProtocol) -> Union[Message, None]:
 # Should send 0 values
         if protocol == AntiEntropyProtocol.PUSH:
+# torch.nn.Parameter(torch.zeros(self.input_dim), requires_grad=False)
+            self.model_handler.model.model = Parameter(0 * self.model_handler.model.model, requires_grad=False)
             key = self.model_handler.caching(self.idx)
             return Message(t, self.idx, peer, MessageType.PUSH, (key,))
         elif protocol == AntiEntropyProtocol.PULL:
             return Message(t, self.idx, peer, MessageType.PULL, None)
         elif protocol == AntiEntropyProtocol.PUSH_PULL:
+            self.model_handler.net.model = Parameter(0 * self.model.model, requires_grad=False)
             key = self.model_handler.caching(self.idx)
             return Message(t, self.idx, peer, MessageType.PUSH_PULL, (key,))
         else:
